@@ -2,17 +2,13 @@ const mongoose = require('mongoose');
 const Joi = require('joi');
 
 const studentSchema = new mongoose.Schema({
-    ID: {
-        type: Number,
-        required: true,
-        unique: true
-    },
+    // _id is uniquely allotted to all records in mongoDB
     Name: {
         type: String,
         required: true
     },
     MentorID: {
-        type: Number
+        type: Number,
     },
     Grades: {
         Ideation: {
@@ -38,7 +34,6 @@ const Student = mongoose.model('Student', studentSchema);
 
 function validateStudent(student) {
     const schema = Joi.object({
-        ID: Joi.number().required(),
         Name: Joi.string().required(),
         MentorID: Joi.number(),
         Grades: Joi.object({

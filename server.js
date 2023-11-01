@@ -1,44 +1,36 @@
-/**
- * Imports
- */
+// Imports
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
 const compression = require("compression");
 
-/**
- * Database
- */
+// Database
 const connectDB = require("./config/db");
 connectDB();
 
-/**
- * Set Port
- */
+
+// Set Port
 const port = process.env.PORT || 5000;
 
-/**
- * Initialize Express
- */
+// Initialize Express
 const app = express();
 
-/**
- * Middlewares
- */
-app.use(express.json({ extended: false }));
+
+// Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 app.use(cookieParser());
 app.use(compression({ level: 5 }));
 
-/**
- * Routes
- */
-// app.use("/api/ambulance", require("./routes/ambulance"));
 
-/**
- * Serve static assets in production
- */
+// Routes
+app.use('/mentors', require('./routes/mentors'));
+app.use('/students', require('./routes/students'));
+
+
+// Serve static assets in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static("client/build"));
 
@@ -47,7 +39,6 @@ if (process.env.NODE_ENV === "production") {
   );
 }
 
-/**
- * Listen to port
- */
+
+// Listen to port
 app.listen(port, () => console.log(`Listening on port ${port}`));
