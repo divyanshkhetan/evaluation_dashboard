@@ -89,4 +89,36 @@ router.delete('/:id', async (req, res) => {        // working
 });
 
 
+// PUT route to lock the profiles of all the students under a mentor
+router.put('/:mentorId/lockstudents', async (req, res) => {
+    try {
+        // Check if mentor ID is valid
+        if (!mongoose.Types.ObjectId.isValid(req.params.mentorId)) {
+            return res.status(400).json({ message: 'Invalid mentor ID' });
+        }
+
+        // Find the mentor by ID and populate the students array
+        const mentor = await Mentor.findById(req.params.mentorId).populate('students');
+
+        // Check if any of the students have any grades set to null
+        const studentsWithNullGrades = mentor.students.filter(student => student.grades.some(grade => grade === null));
+        if (studentsWithNullGrades.length > 0) {
+            return res.status(400).json({ message: 'Cannot lock profiles as some students have null grades' });
+        }
+
+        // Set the locked property of all the students to true
+        mentor.students.forEach(student => {
+            student.locked = true;
+        });
+
+        // Save the changes to the database
+        await mentor.save();
+
+        // Send a success message
+        res.json({ message: 'Profiles of all students under the mentor have been locked' });
+    } catch (error) {
+        res.status(500).send(error);
+    }
+});
+
 module.exports = router;
