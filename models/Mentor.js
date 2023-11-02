@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Joi = require('joi');
-const { studentSchema } = require('./student');
 
 const mentorSchema = new mongoose.Schema({
     // _id is uniquely alloted to all records in MongoDB
@@ -9,7 +8,8 @@ const mentorSchema = new mongoose.Schema({
         required: true
     },
     students: {
-        type: [studentSchema],
+        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Student' }],
+        deafult: []
     }
 });
 
@@ -18,7 +18,7 @@ const Mentor = mongoose.model('Mentor', mentorSchema);
 function validateMentor(mentor) {
     const schema = Joi.object({
         Name: Joi.string().required(),
-        students: Joi.array().items(studentSchema)
+        students: Joi.array()
     });
     return schema.validate(mentor);
 }

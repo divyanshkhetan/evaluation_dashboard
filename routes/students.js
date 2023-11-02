@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const {Student} = require('../models/student');
 
+// TODO: Check if the student is locked before allowing modification
+
 // route to fetch all students
 router.get('/', async (req, res) => {       // working
     try {
@@ -28,19 +30,21 @@ router.post('/', async (req, res) => {      // working
 });
 
 // route to update the grades of a student
-router.put('/:id', async (req, res) => {
+router.put('/:id', async (req, res) => {             // working
     // Check if ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {          // working
         return res.status(400).json({ message: 'Invalid ID' });
     }
 
+    // TODO: add check that only the assigned mentor can update the grades
+
     try {
         const student = await Student.findById(req.params.id);
-        if (!student) {
+        if (!student) {             // working
             return res.status(404).json({ message: 'Student not found' });
         }
         student.Grades = req.body.Grades;
-        const updatedStudent = await student.save();
+        const updatedStudent = await student.save();        // working
         res.json(updatedStudent);
     } catch (err) {
         res.status(400).json({ message: err.message });
