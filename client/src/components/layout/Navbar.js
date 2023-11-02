@@ -9,66 +9,61 @@ const Navbar = () => {
 
   const { user, logout } = authContext;
   return (
-    
-    <div
-      className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
-      style={{ width: "10rem", height: "100vh", textAlign: "center", position: "absolute" }}
-    >
-      <a
-        href="/"
-        className="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
-        style={{ textAlign: "center", width: "100%" }}
-      >
-        <span className="fs-4" style={{ width: "100%" }}>
-          {user ? user.name : "Guest"}
-        </span>
-      </a>
-      <hr />
-      <ul
-        className="nav nav-pills flex-column mb-auto"
-        style={{ textAlign: "center" }}
-      >
-        <li className="nav-item">
-          <Link
-            to="/dashboard"
-            className={`nav-link ${
-              location.pathname === "/dashboard" ? "active" : ""
-            }`}
-            aria-current="page"
-          >
-            View
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link
-            to="/dashboard/assign"
-            className={`nav-link ${
-              location.pathname === "/dashboard/assign" ? "active" : ""
-            }`}
-          >
-            Assign
-          </Link>
-        </li>
-        <li className="nav-item">
-          <Link
-            to="/dashboard/marks"
-            className={`nav-link ${
-              location.pathname === "/dashboard/marks" ? "active" : ""
-            }`}
-          >
-            Marks
-          </Link>
-        </li>
-        <li className="nav-item">
-          <button
-            style={{ border: "none", color: "red", background: "inherit" }}
-            onClick={() => logout()}
-          >
-            Logout
-          </button>
-        </li>
-      </ul>
-    </div>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{padding: "0 3.5rem"}}>
+        <Link to="/" className="navbar-brand">
+          <span className="fs-4">{user ? user.name : "Guest"}</span>
+        </Link>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
+        <div
+          className="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
+          <div className="navbar-nav">
+            <Link
+              to="/dashboard"
+              className={`nav-link ${
+                location.pathname === "/dashboard" ? "active" : ""
+              }`}
+              aria-current="page"
+            >
+              View
+            </Link>
+            <Link
+              to="/dashboard/assign"
+              className={`nav-link ${
+                location.pathname === "/dashboard/assign" ? "active" : ""
+              }`}
+            >
+              Assign
+            </Link>
+            <Link
+              to="/dashboard/marks"
+              className={`nav-link ${
+                location.pathname === "/dashboard/marks" ? "active" : ""
+              }`}
+            >
+              Marks
+            </Link>
+            <Link
+              to="/"
+              className="nav-link text-danger"
+              onClick={() => logout()}
+            >
+              Logout
+            </Link>
+          </div>
+        </div>
+      </nav>
   );
 };
 

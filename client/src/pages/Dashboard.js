@@ -1,5 +1,7 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, Fragment } from "react";
 import MentorContext from "../contexts/mentors/mentorContext";
+import Button from "../components/layout/Button";
+import Student from "../components/layout/Student";
 
 const Dashboard = () => {
   const mentorContext = useContext(MentorContext);
@@ -24,11 +26,11 @@ const Dashboard = () => {
   }, [filter, Students]);
 
   return (
-    <div style={{ paddingTop: "4rem" }}>
-      <div style={{ display: "flex", flexWrap: "wrap" }}>
-        <button onClick={() => setFilter("All")}>All</button>
-        <button onClick={() => setFilter("Assigned")}>Assigned</button>
-        <button onClick={() => setFilter("Unassigned")}>Unassigned</button>
+    <div style={{ paddingTop: "2rem" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem" }}>
+        <Button onClick={() => setFilter("All")}>All</Button>
+        <Button onClick={() => setFilter("Assigned")}>Assigned</Button>
+        <Button onClick={() => setFilter("Unassigned")}>Unassigned</Button>
       </div>
       <div
         style={{
@@ -37,54 +39,16 @@ const Dashboard = () => {
           flexWrap: "wrap",
           gap: "2rem",
           marginTop: "2rem",
-          height: "80vh",
-          overflowY: "scroll",
+          height: "70vh",
+          overflowY: "auto",
+          justifyContent: "flex-start",
+          padding: "3rem"
         }}
       >
         {students.map((student) => (
-          <div key={student._id}>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                border: "1px solid black",
-                padding: "1rem",
-              }}
-            >
-              <h2>{student.Name}</h2>
-              <p>Execution(Out of 10)</p>
-              <input
-                type="text"
-                id="Execution"
-                name="Execution"
-                value={
-                  student.Grades.Execution ? student.Grades.Execution : "NA"
-                }
-                disabled
-              />
-              <hr />
-
-              <p>Ideation(Out of 10)</p>
-              <input
-                type="text"
-                id="Ideation"
-                name="Ideation"
-                value={student.Grades.Ideation ? student.Grades.Ideation : "NA"}
-                disabled
-              />
-              <hr />
-
-              <p>Viva(Out of 10)</p>
-              <input
-                type="text"
-                id="Viva"
-                name="Viva"
-                value={student.Grades.Viva ? student.Grades.Viva : "NA"}
-                disabled
-              />
-              <hr />
-            </div>
-          </div>
+          <Fragment key={student._id}>
+            <Student student={student} />
+          </Fragment>
         ))}
       </div>
     </div>

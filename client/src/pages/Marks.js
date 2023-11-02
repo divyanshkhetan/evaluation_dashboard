@@ -85,7 +85,7 @@ const Marks = () => {
   };
 
   return (
-    <div style={{ paddingTop: "4rem" }}>
+    <div style={{ paddingTop: "2rem" }}>
       {user.locked ? (
         <h1>The Marks are locked!!!</h1>
       ) : (
