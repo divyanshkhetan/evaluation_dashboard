@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const router = express.Router();
+const ObjectId = require('mongodb').ObjectId; 
 const {Student} = require('../models/student');
 
 // TODO: Check if the student is locked before allowing modification
@@ -9,6 +10,31 @@ const {Student} = require('../models/student');
 router.get('/', async (req, res) => {       // working
     try {
         const students = await Student.find();
+        res.json(students);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// route to fetch all students having specified mentorID
+router.get('/mentor/:mentorID', async (req, res) => {           // working
+    // Check if ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(req.params.mentorID)) {          // working
+        return res.status(400).json({ message: 'Invalid ID' });
+    }
+
+    try {
+        const students = await Student.find({ MentorID: new ObjectId(req.params.mentorID) });
+        res.json(students);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
+// route to fetch all students having unassigned mentorid
+router.get('/unassigned', async (req, res) => {           // working
+    try {
+        const students = await Student.find({ MentorID: null });
         res.json(students);
     } catch (err) {
         res.status(500).json({ message: err.message });
