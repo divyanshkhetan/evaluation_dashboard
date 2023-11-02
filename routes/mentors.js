@@ -31,12 +31,6 @@ router.post("/assign", auth, async (req, res) => {
       return res.status(400).send({ error: "Mentor profile is locked" });
     }
 
-    for (let i = 0; i < mentor.students.length; i++) {
-      const stud = await Student.findById(mentor.students[i]);
-      stud.MentorID = null;
-      await stud.save();
-    }
-
     const temp = req.body.students;
     let students = [];
     for (let i = 0; i < temp.length; i++) {
@@ -73,6 +67,12 @@ router.post("/assign", auth, async (req, res) => {
             error: `Student ${stud.Name} is already assigned to a mentor`,
           });
       }
+    }
+
+    for (let i = 0; i < mentor.students.length; i++) {
+      const stud = await Student.findById(mentor.students[i]);
+      stud.MentorID = null;
+      await stud.save();
     }
 
     for (let i = 0; i < students.length; i++) {
