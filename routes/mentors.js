@@ -4,6 +4,7 @@ const router = express.Router();
 const { Mentor } = require("../models/mentor");
 const { Student } = require("../models/student");
 const auth = require("../middlewares/auth");
+const nodemailer = require("nodemailer");
 
 // GET: Fetch all the mentors
 router.get("/", async (req, res) => {
@@ -147,6 +148,27 @@ router.put("/lock", auth, async (req, res) => {
     // Set the locked property of mentor to true
     mentor.Locked = true;
     await mentor.save();
+
+    var transport = nodemailer.createTransport({
+      host: "sandbox.smtp.mailtrap.io",
+      port: 2525,
+      auth: {
+        user: "3481768d0f7474",
+        pass: "637856c2b79e33"
+      }
+    });
+
+    for(let i=0; i<mentor.students.length; i++) {
+      const info = await transport.sendMail({
+        from: `"${mentor.Name}" <academic@example.com>`, // sender address
+        to: mentor.students[i].Email, // list of receivers
+        subject: "Evaluation", // Subject line
+        text: `Marks: ${mentor.students[i].Grades.Execution + mentor.students[i].Grades.Ideation + mentor.students[i].Grades.Viva}/30`, // plain text body
+        html: `<b>Marks: ${mentor.students[i].Grades.Execution + mentor.students[i].Grades.Ideation + mentor.students[i].Grades.Viva}/30</b>`, // html body
+      });
+    
+      console.log("Message sent: %s", info.messageId);
+    }
 
     res.json({
       message: "Profiles of all students under the mentor have been locked",

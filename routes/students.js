@@ -82,6 +82,7 @@ router.post("/update", auth, async (req, res) => {
 router.post("/", async (req, res) => {
   const student = new Student({
     Name: req.body.Name,
+    Email: req.body.Email,
   });
 
   try {

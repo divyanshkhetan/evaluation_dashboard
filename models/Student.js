@@ -24,6 +24,11 @@ const studentSchema = new mongoose.Schema({
             type: Number,
             default: null
         },
+    },
+    Email: {
+        type: String,
+        required: true,
+        unique: true
     }
 });
 
@@ -37,7 +42,8 @@ function validateStudent(student) {
             Ideation: Joi.number().allow(null),
             Execution: Joi.number().allow(null),
             Viva: Joi.number().allow(null)
-        })
+        }),
+        Email: Joi.string().required()
     });
     return schema.validate(student);
 }
