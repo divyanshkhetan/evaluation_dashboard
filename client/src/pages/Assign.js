@@ -1,7 +1,10 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, Fragment } from "react";
 import MentorContext from "../contexts/mentors/mentorContext";
 import AlertContext from "../contexts/alert/alertContext";
 import AuthContext from "../contexts/auth/authContext";
+
+import Button from "../components/layout/Button";
+import Student from "../components/layout/Student";
 
 const Assign = () => {
   const mentorContext = useContext(MentorContext);
@@ -61,86 +64,135 @@ const Assign = () => {
     setAssigned(assigned.filter((s) => s._id !== student._id));
   };
   return (
-    <div style={{ paddingTop: "4rem" }}>
+    <div style={{ paddingTop: "2rem", paddingLeft: "3rem" }}>
       {user.locked ? (
-        <h1>The Students are locked!!!</h1>
+        <>
+          <h1
+            style={{
+              textAlign: "center",
+              color: "#bb2124",
+              marginBottom: "0.5rem",
+              textDecoration: "underline",
+            }}
+          >
+            The Students are locked!!!
+          </h1>
+        </>
       ) : (
         <div>
           {edit ? (
-            <div>
-              <button
+            <div
+              style={{
+                display: "flex",
+                gap: "2rem",
+                justifyContent: "center",
+              }}
+            >
+              <Button
                 onClick={() => {
                   save();
                 }}
+                style={{ background: "#22bb33" }}
               >
                 Save
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   cancel();
                 }}
+                style={{ background: "#bb2124" }}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           ) : (
-            <button
-              onClick={() => {
-                setEdit(true);
+            <div
+              style={{
+                display: "flex",
+                gap: "2rem",
+                justifyContent: "center",
               }}
             >
-              Edit
-            </button>
+              {" "}
+              <Button
+                onClick={() => {
+                  setEdit(true);
+                }}
+              >
+                Edit
+              </Button>
+            </div>
           )}
         </div>
       )}
+      <hr style={{ width: "25%" }} />
       <h1>Assigned</h1>
       {assigned.length > 0 && (
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: "2rem",
+            height: "40vh",
+            overflowY: "auto",
+            justifyContent: "flex-start",
+            padding: "3rem",
           }}
         >
           {assigned.map((student) => (
-            <div key={student._id} style={{ display: "flex" }}>
-              <p>{student.Name}</p>
-              <button
-                disabled={!edit}
-                onClick={() => {
-                  unassign(student);
-                }}
-              >
-                X
-              </button>
-            </div>
+            <Fragment key={student._id}>
+              <Student
+                student={student}
+                but={
+                  <Button
+                    disabled={!edit}
+                    onClick={() => {
+                      unassign(student);
+                    }}
+                    style={{ background: "#bb2124" }}
+                  >
+                    X
+                  </Button>
+                }
+              />
+            </Fragment>
           ))}
         </div>
       )}
 
-      <hr />
+      <hr style={{ width: "25%" }} />
       <h1>Unassigned</h1>
       {unassigned.length > 0 && (
         <div
           style={{
             display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: "2rem",
+            height: "40vh",
+            overflowY: "auto",
+            justifyContent: "flex-start",
+            padding: "3rem",
           }}
         >
           {unassigned.map((student) => (
-            <div key={student._id} style={{ display: "flex" }}>
-              <p>{student.Name}</p>
-              <button
-                disabled={!edit}
-                onClick={() => {
-                  onAssign(student);
-                }}
-              >
-                &#10003;
-              </button>
-            </div>
+            <Fragment key={student._id}>
+              <Student
+                student={student}
+                but={
+                  <Button
+                    disabled={!edit}
+                    onClick={() => {
+                      onAssign(student);
+                    }}
+                    style={{ background: "#22bb33" }}
+                  >
+                    &#10003;
+                  </Button>
+                }
+              />
+            </Fragment>
           ))}
         </div>
       )}

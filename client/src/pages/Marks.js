@@ -3,6 +3,9 @@ import MentorContext from "../contexts/mentors/mentorContext";
 import AlertContext from "../contexts/alert/alertContext";
 import AuthContext from "../contexts/auth/authContext";
 
+import Button from "../components/layout/Button";
+import Student from "../components/layout/Student";
+
 const Marks = () => {
   const mentorContext = useContext(MentorContext);
   const alertContext = useContext(AlertContext);
@@ -26,6 +29,11 @@ const Marks = () => {
   useEffect(() => {}, [students]);
 
   const save = () => {
+    if(students.length < 3 || students.length > 4){
+      setAlert("Please assign 3 or 4 students", "danger");
+      return;
+    }
+    
     updateMarks({ students });
     setEdit(false);
     setAlert("Saved", "success");
@@ -45,6 +53,11 @@ const Marks = () => {
   };
 
   const onLock = () => {
+    if(students.length < 3 || students.length > 4){
+      setAlert("Please assign 3 or 4 students", "danger");
+      return;
+    }
+    
     // Check if a grade for any student is null or -1
     for (let i = 0; i < students.length; i++) {
       if (
@@ -85,44 +98,68 @@ const Marks = () => {
   };
 
   return (
-    <div style={{ paddingTop: "2rem" }}>
+    <div style={{ paddingTop: "2rem", paddingLeft: "3rem" }}>
       {user.locked ? (
-        <h1>The Marks are locked!!!</h1>
+        <h1
+          style={{
+            textAlign: "center",
+            color: "#bb2124",
+            marginBottom: "0.5rem",
+            textDecoration: "underline",
+          }}
+        >
+          The Marks are locked!!!
+        </h1>
       ) : (
         <div>
           {edit ? (
-            <div>
-              <button
+            <div
+              style={{
+                display: "flex",
+                gap: "2rem",
+                justifyContent: "center",
+              }}
+            >
+              <Button
                 onClick={() => {
                   save();
                 }}
+                style={{ background: "#22bb33" }}
               >
                 Save
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   cancel();
                 }}
+                style={{ background: "#bb2124" }}
               >
                 Cancel
-              </button>
+              </Button>
             </div>
           ) : (
-            <div>
-              <button
+            <div
+              style={{
+                display: "flex",
+                gap: "2rem",
+                justifyContent: "center",
+              }}
+            >
+              <Button
                 onClick={() => {
                   setEdit(true);
                 }}
               >
                 Edit
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={() => {
                   onLock();
                 }}
+                style={{ background: "#f0ad4e" }}
               >
                 Lock
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -132,23 +169,25 @@ const Marks = () => {
           style={{
             display: "flex",
             flexDirection: "row",
+            flexWrap: "wrap",
             gap: "2rem",
-            marginTop: "2rem",
-            height: "80vh",
-            overflowY: "scroll",
+            height: "70vh",
+            overflowY: "auto",
+            justifyContent: "flex-start",
+            padding: "3rem",
           }}
         >
           {students.map((student) => (
             <div key={student._id}>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  border: "1px solid black",
+                  border: "1px solid #ccc",
+                  borderRadius: "5px",
                   padding: "1rem",
+                  width: "300px",
                 }}
               >
-                <p>{student.Name}</p>
+                <h2>{student.Name}</h2>
                 <p>Execution(Out of 10)</p>
                 <input
                   type="number"

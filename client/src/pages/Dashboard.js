@@ -28,9 +28,9 @@ const Dashboard = () => {
   return (
     <div style={{ paddingTop: "2rem" }}>
       <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "2rem" }}>
-        <Button onClick={() => setFilter("All")}>All</Button>
-        <Button onClick={() => setFilter("Assigned")}>Assigned</Button>
-        <Button onClick={() => setFilter("Unassigned")}>Unassigned</Button>
+        <Button onClick={() => setFilter("All")} style={filter==="All" ? {background: "#22bb33"} : {}}>All</Button>
+        <Button onClick={() => setFilter("Assigned")} style={filter==="Assigned" ? {background: "#22bb33"} : {}}>Assigned</Button>
+        <Button onClick={() => setFilter("Unassigned")} style={filter==="Unassigned" ? {background: "#22bb33"} : {}}>Unassigned</Button>
       </div>
       <div
         style={{

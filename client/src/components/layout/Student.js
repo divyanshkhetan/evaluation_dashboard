@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Card = ({student}) => {
+const Card = ({student, but}) => {
     return (
         <div style={{ 
             border: '1px solid #ccc', 
@@ -15,6 +15,7 @@ const Card = ({student}) => {
                 <li>Ideation: {student.Grades.Ideation ? student.Grades.Ideation : "NA"}</li>
                 <li>Viva: {student.Grades.Viva ? student.Grades.Viva : "NA"}</li>
             </ul>
+            {but ? but : <></>}
         </div>
     );
 };

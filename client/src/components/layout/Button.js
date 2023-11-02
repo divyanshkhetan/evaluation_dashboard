@@ -1,7 +1,7 @@
 
 import React from 'react';
 
-const Button = ({ children, style, onClick }) => {
+const Button = ({ children, style, onClick, disabled=false }) => {
     const gradient = 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)';
     const borderRadius = '5px';
     const padding = '10px 20px';
@@ -12,7 +12,6 @@ const Button = ({ children, style, onClick }) => {
     const cursor = 'pointer';
 
     const buttonStyle = {
-        ...style,
         borderRadius,
         padding,
         color,
@@ -20,10 +19,15 @@ const Button = ({ children, style, onClick }) => {
         border,
         background,
         cursor,
+        ...style,
     };
 
+    if(disabled) {
+        buttonStyle.background = "#aaaaaa";
+    }
+
     return (
-        <button style={buttonStyle} onClick={onClick}>
+        <button disabled={disabled} style={buttonStyle} onClick={onClick}>
             {children}
         </button>
     );
