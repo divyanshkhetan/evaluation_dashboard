@@ -1,27 +1,15 @@
-.alert {
-    z-index: 9999;
-    width: 100%;
-    padding: 0.5rem;
-    position: absolute;
-    top: 0;
-    left: 0;
-    margin: 0;
-    display: flex;
-    justify-content: center;
+::-webkit-scrollbar {
+    width: 11px;
 }
 
-.alert-success {
-    background-color: #22bb33;
+::-webkit-scrollbar-track {
+    background-color: white;
 }
 
-.alert-danger {
-    background-color: #bb2124;
+::-webkit-scrollbar-thumb {
+    background-color: #2bc592;
+    background-image: -webkit-linear-gradient( 150deg, rgba(255, 255, 255, 0.35) 20%, transparent 20%, transparent 40%, rgba(255, 255, 255, 0.35) 40%, rgba(255, 255, 255, 0.35) 60%, transparent 60%, transparent 80%, rgba(255, 255, 255, 0.35) 80%);
+    border-radius: 20px;
+    background-clip: content-box;
 }
 
-.alert-warning {
-    background-color: #f0ad4e;
-}
-
-.alert-info {
-    background-color: #5bc0de;
-}

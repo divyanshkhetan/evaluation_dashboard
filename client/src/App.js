@@ -19,6 +19,8 @@ import AuthState from "./contexts/auth/AuthState";
 import AlertState from "./contexts/alert/AlertState";
 import MentorState from "./contexts/mentors/MentorState";
 
+import "./App.css";
+
 function App() {
   return (
     <AuthState>

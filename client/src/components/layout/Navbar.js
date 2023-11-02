@@ -9,7 +9,7 @@ const Navbar = () => {
 
   const { user, logout } = authContext;
   return (
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{padding: "0 3.5rem"}}>
+      <nav className="navbar navbar-expand-lg navbar-dark bg-dark" style={{padding: "1rem 3.5rem"}}>
         <Link to="/" className="navbar-brand">
           <span className="fs-4">{user ? user.name : "Guest"}</span>
         </Link>
@@ -28,7 +28,7 @@ const Navbar = () => {
           className="collapse navbar-collapse justify-content-end"
           id="navbarNav"
         >
-          <div className="navbar-nav">
+          <div className="navbar-nav" style={{fontSize: "1.25rem"}}>
             <Link
               to="/dashboard"
               className={`nav-link ${
