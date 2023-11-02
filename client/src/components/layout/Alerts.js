@@ -11,6 +11,16 @@ const Alerts = () => {
       <div
         key={alert.id}
         className={`alert alert-${alert.type}`}
+        style={{
+          position:"absolute",
+          zIndex: "10000",
+          top: "0",
+          left: "0",
+          margin: "0",
+          width: "100%",
+          display: "flex",
+          justifyContent: "center"
+        }}
       >
         {alert.msg}
       </div>

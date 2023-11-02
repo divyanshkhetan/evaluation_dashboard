@@ -3,7 +3,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Alerts from "./components/layout/Alerts";
 
-import Sidebar from "./components/layout/Sidebar";
+import Navbar from "./components/layout/Navbar";
 
 // Pages
 import Homepage from "./pages/Homepage";
@@ -35,7 +35,7 @@ function App() {
                 path="/dashboard"
                 element={
                   <PrivateRoute>
-                    <Sidebar />
+                    <Navbar />
                     <Dashboard />
                   </PrivateRoute>
                 }
@@ -45,7 +45,7 @@ function App() {
                 path="/dashboard/assign"
                 element={
                   <PrivateRoute>
-                    <Sidebar />
+                    <Navbar />
                     <Assign />
                   </PrivateRoute>
                 }
@@ -55,7 +55,7 @@ function App() {
                 path="/dashboard/marks"
                 element={
                   <PrivateRoute>
-                    <Sidebar />
+                    <Navbar />
                     <Marks />
                   </PrivateRoute>
                 }

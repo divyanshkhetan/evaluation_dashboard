@@ -3,12 +3,13 @@ import { Link, useLocation } from "react-router-dom";
 
 import AuthContext from "../../contexts/auth/authContext";
 
-const Sidebar = () => {
+const Navbar = () => {
   const location = useLocation();
   const authContext = useContext(AuthContext);
 
   const { user, logout } = authContext;
   return (
+    
     <div
       className="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
       style={{ width: "10rem", height: "100vh", textAlign: "center", position: "absolute" }}
@@ -71,4 +72,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default Navbar;

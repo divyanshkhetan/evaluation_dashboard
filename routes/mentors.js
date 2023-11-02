@@ -57,9 +57,15 @@ router.post("/assign", auth, async (req, res) => {
         .send({ error: "Mentor can have a maximum of 4 students" });
     }
 
+    for (let i = 0; i < mentor.students.length; i++) {
+      const stud = await Student.findById(mentor.students[i]);
+      stud.MentorID = null;
+      await stud.save();
+    }
+
     // Check if student is already assigned to a mentor
     for (let i = 0; i < students.length; i++) {
-      const stud = students[i];
+      const stud = await Student.findById(students[i]._id);
       if (stud.MentorID) {
         return res
           .status(400)
@@ -69,14 +75,8 @@ router.post("/assign", auth, async (req, res) => {
       }
     }
 
-    for (let i = 0; i < mentor.students.length; i++) {
-      const stud = await Student.findById(mentor.students[i]);
-      stud.MentorID = null;
-      await stud.save();
-    }
-
     for (let i = 0; i < students.length; i++) {
-      const stud = students[i];
+      const stud = await Student.findById(students[i]._id);
       stud.MentorID = mentor._id;
       await stud.save();
     }
@@ -99,6 +99,7 @@ router.post("/assign", auth, async (req, res) => {
       .status(201)
       .send({ message: "Students assigned to mentor successfully" });
   } catch (error) {
+    console.log(error)
     res.status(500).send(error);
   }
 });

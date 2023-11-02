@@ -44,34 +44,35 @@ router.get("/unassigned", async (req, res) => {
   }
 });
 
-// PUT: Update the grades of a student
-router.put("/:id", auth, async (req, res) => {
-  // Check if ID is a valid ObjectId
-  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-    return res.status(400).json({ message: "Invalid ID" });
-  }
-
+// POST: Update the grades of students
+router.post("/update", auth, async (req, res) => {
   // Extract user id from request
   const user_id = req.user_id;
 
   try {
-    const student = await Student.findById(req.params.id);
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    const { students } = req.body;
 
-    if (user_id != student.MentorID) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
+    for (let i = 0; i < students.length; i++) {
+      const student = await Student.findById(students[i]._id);
+      if (!student) {
+        return res.status(404).json({ message: "Student not found" });
+      }
 
-    const mentor = await Mentor.findById(user_id);
-    if (mentor.Locked) {
-      return res.status(400).send({ error: "Mentor profile is locked" });
-    }
+      if (user_id != student.MentorID) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
 
-    student.Grades = req.body.Grades;
-    const updatedStudent = await student.save();
-    res.json(updatedStudent);
+      const mentor = await Mentor.findById(user_id);
+      if (mentor.Locked) {
+        return res.status(400).send({ error: "Mentor profile is locked" });
+      }
+
+      student.Grades.Execution = students[i].Grades.Execution === "-1" || students[i].Grades.Execution === null ? null : parseInt(students[i].Grades.Execution);
+      student.Grades.Ideation = students[i].Grades.Ideation === "-1" || students[i].Grades.Ideation === null ? null : parseInt(students[i].Grades.Ideation);
+      student.Grades.Viva = students[i].Grades.Viva === "-1" || students[i].Grades.Viva === null ? null : parseInt(students[i].Grades.Viva);
+      await student.save();
+    }
+    res.json("Updated");
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
