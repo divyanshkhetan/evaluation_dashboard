@@ -10,7 +10,8 @@ const Marks = () => {
   const mentorContext = useContext(MentorContext);
   const alertContext = useContext(AlertContext);
   const authContext = useContext(AuthContext);
-  const { fetchAssigned, Assigned, updateMarks, lock } = mentorContext;
+  const { fetchAssigned, Assigned, updateMarks, lock, fetchMarksheet } =
+    mentorContext;
   const { setAlert } = alertContext;
   const { user } = authContext;
 
@@ -29,11 +30,11 @@ const Marks = () => {
   useEffect(() => {}, [students]);
 
   const save = () => {
-    if(students.length < 3 || students.length > 4){
+    if (students.length < 3 || students.length > 4) {
       setAlert("Please assign 3 or 4 students", "danger");
       return;
     }
-    
+
     updateMarks({ students });
     setEdit(false);
     setAlert("Saved", "success");
@@ -53,11 +54,11 @@ const Marks = () => {
   };
 
   const onLock = () => {
-    if(students.length < 3 || students.length > 4){
+    if (students.length < 3 || students.length > 4) {
       setAlert("Please assign 3 or 4 students", "danger");
       return;
     }
-    
+
     // Check if a grade for any student is null or -1
     for (let i = 0; i < students.length; i++) {
       if (
@@ -228,6 +229,16 @@ const Marks = () => {
                   max="10"
                 />
                 <hr />
+                {user.locked && (
+                  <Button
+                    onClick={() => {
+                      fetchMarksheet({ id: student._id });
+                    }}
+                    style={{ background: "#f0ad4e" }}
+                  >
+                    Download Marksheet
+                  </Button>
+                )}
               </div>
             </div>
           ))}

@@ -18,8 +18,11 @@ import {
   UPDATE_FAIL,
   CLEAR_ERRORS,
   LOCK_SUCCESS,
+  MARKSHEET_FETCH_SUCCESS,
+  MARKSHEET_FETCH_FAIL
 } from "../types";
 import axios from "axios";
+import {saveAs} from "file-saver";
 
 axios.defaults.withCredentials = true;
 
@@ -143,6 +146,27 @@ const MentorState = (props) => {
     }
   };
 
+  // Fetch Marksheet
+  const fetchMarksheet = async (formData) => {
+    // Set header of the input data
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      responseType: 'blob',
+    };
+
+    try {
+      // Make a get request at localhost:5000/mentors
+      const res = await axios.post("/mentors/marksheet", formData, config);
+      saveAs(res.data, `${formData.id}.pdf`);
+
+      dispatch({ type: MARKSHEET_FETCH_SUCCESS, payload: res.data });
+    } catch (err) {
+      dispatch({ type: MARKSHEET_FETCH_FAIL });
+    }
+  }
+
   // Clear Errors
   const clearErrors = () => {
     // Dispatch the action to reducer for CLEAR_ERRORS
@@ -167,7 +191,8 @@ const MentorState = (props) => {
         fetchUnassigned,
         assign,
         updateMarks,
-        lock
+        lock,
+        fetchMarksheet
       }}
     >
       {props.children}

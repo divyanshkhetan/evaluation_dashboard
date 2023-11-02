@@ -6,6 +6,13 @@ const { Student } = require("../models/student");
 const auth = require("../middlewares/auth");
 const nodemailer = require("nodemailer");
 
+//Required package
+var pdf = require("pdf-creator-node");
+var fs = require("fs");
+
+// Read HTML Template
+var html = fs.readFileSync("template.html", "utf8");
+
 // GET: Fetch all the mentors
 router.get("/", async (req, res) => {
   try {
@@ -68,11 +75,9 @@ router.post("/assign", auth, async (req, res) => {
     for (let i = 0; i < students.length; i++) {
       const stud = await Student.findById(students[i]._id);
       if (stud.MentorID) {
-        return res
-          .status(400)
-          .send({
-            error: `Student ${stud.Name} is already assigned to a mentor`,
-          });
+        return res.status(400).send({
+          error: `Student ${stud.Name} is already assigned to a mentor`,
+        });
       }
     }
 
@@ -100,7 +105,7 @@ router.post("/assign", auth, async (req, res) => {
       .status(201)
       .send({ message: "Students assigned to mentor successfully" });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     res.status(500).send(error);
   }
 });
@@ -121,12 +126,10 @@ router.put("/lock", auth, async (req, res) => {
 
     // Check if the number of students lies between 3 and 4
     if (mentor.students.length < 3 || mentor.students.length > 4) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "Cannot lock profiles as number of students is not between 3 and 4",
-        });
+      return res.status(400).json({
+        message:
+          "Cannot lock profiles as number of students is not between 3 and 4",
+      });
     }
 
     // Check if any of the students have any grades set to null
@@ -138,11 +141,9 @@ router.put("/lock", auth, async (req, res) => {
     if (studentsWithNullGrades.length > 0) {
       // working
       // studentsWithNullGrades.forEach(stud => console.log(stud));
-      return res
-        .status(400)
-        .json({
-          message: "Cannot lock profiles as some students have null grades",
-        });
+      return res.status(400).json({
+        message: "Cannot lock profiles as some students have null grades",
+      });
     }
 
     // Set the locked property of mentor to true
@@ -154,19 +155,27 @@ router.put("/lock", auth, async (req, res) => {
       port: 2525,
       auth: {
         user: "3481768d0f7474",
-        pass: "637856c2b79e33"
-      }
+        pass: "637856c2b79e33",
+      },
     });
 
-    for(let i=0; i<mentor.students.length; i++) {
+    for (let i = 0; i < mentor.students.length; i++) {
       const info = await transport.sendMail({
         from: `"${mentor.Name}" <academic@example.com>`, // sender address
         to: mentor.students[i].Email, // list of receivers
         subject: "Evaluation", // Subject line
-        text: `Marks: ${mentor.students[i].Grades.Execution + mentor.students[i].Grades.Ideation + mentor.students[i].Grades.Viva}/30`, // plain text body
-        html: `<b>Marks: ${mentor.students[i].Grades.Execution + mentor.students[i].Grades.Ideation + mentor.students[i].Grades.Viva}/30</b>`, // html body
+        text: `Marks: ${
+          mentor.students[i].Grades.Execution +
+          mentor.students[i].Grades.Ideation +
+          mentor.students[i].Grades.Viva
+        }/30`, // plain text body
+        html: `<b>Marks: ${
+          mentor.students[i].Grades.Execution +
+          mentor.students[i].Grades.Ideation +
+          mentor.students[i].Grades.Viva
+        }/30</b>`, // html body
       });
-    
+
       console.log("Message sent: %s", info.messageId);
     }
 
@@ -177,6 +186,78 @@ router.put("/lock", auth, async (req, res) => {
     console.log(error);
     res.status(500).send(error);
   }
+});
+
+// POST: Generate a marksheet of a student
+router.post("/marksheet", auth, async (req, res) => {
+  // Extract user id from request
+  const user_id = req.user_id;
+
+  // Check if ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    return res.status(400).json({ message: "Invalid ID" });
+  }
+
+  // Check if ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(req.body.id)) {
+    return res.status(400).json({ message: "Invalid Student ID" });
+  }
+
+  const mentor = await Mentor.findById(user_id);
+  if (!mentor.Locked) {
+    return res.status(400).json({ message: "Mentor profile is not locked" });
+  }
+  
+  const stud = await Student.findById(req.body.id);
+
+  if (stud.MentorID != user_id) {
+    return res.status(400).json({ message: "Invalid Mentor ID" });
+  }
+
+  var options = {
+    format: "A4",
+    orientation: "portrait",
+    border: "10mm",
+    header: {
+      height: "45mm",
+      contents: `<div style="text-align: center;">${stud.Name}</div>`,
+    },
+  };
+
+  var document = {
+    html: html,
+    data: {
+      name: stud.Name,
+      execution: stud.Grades.Execution,
+      ideation: stud.Grades.Ideation,
+      viva: stud.Grades.Viva,
+      total: stud.Grades.Execution + stud.Grades.Ideation + stud.Grades.Viva,
+    },
+    path: `./Marksheets/${stud._id}.pdf`,
+    type: "",
+  };
+
+  pdf
+    .create(document, options)
+    .then((r) => {
+      const filepath = `./Marksheets/${stud._id}.pdf`;
+      const filename = `${stud._id}.pdf`;
+      res.download(
+        filepath, 
+        `${filename}.pdf`,
+        (err) => {
+            if (err) {
+                res.send({
+                    error : err,
+                    msg   : "Problem downloading the file"
+                })
+            }
+    });
+    })
+    .catch((error) => {
+      console.error(error);
+      res.status(500).json({error: "Error while creating pdf"})
+    });
 });
 
 // POST: Create a new mentor
