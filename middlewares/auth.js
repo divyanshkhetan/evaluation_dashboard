@@ -1,21 +1,32 @@
-const Mentor = require('../models/mentor');
+const jwt = require('jsonwebtoken');
 
-function auth(req, res, next) {
-    const mentorId = req.params.id;
+const auth = (req, res, next) => {
+  // Get token from cookies
+  const token = req.cookies.token;
 
-    Mentor.findById(mentorId, (error, mentor) => {
-        if (error) {
-            console.error(error);
-            return res.status(500).json({ message: 'Internal server error' });
-        }
+  // If no cookie
+  if (!token) {
+    // Return error
+    res.clearCookie('token');
+    return res
+      .status(401)
+      .send({ errors: [{ msg: 'No token, authorization denied' }] });
+  }
 
-        if (!mentor) {
-            return res.status(401).json({ message: 'Invalid mentor ID' });
-        }
+  try {
+    // Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-        req.mentor = mentor;
-        next();
-    });
-}
+    // Store user id in request object
+    req.user_id = decoded.id;
+
+    // Go next
+    next();
+  } catch (err) {
+    // Return error
+    res.clearCookie('token');
+    res.status(400).send({ errors: [{ msg: 'Token is not valid' }] });
+  }
+};
 
 module.exports = auth;

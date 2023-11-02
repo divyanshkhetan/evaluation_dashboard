@@ -1,140 +1,190 @@
-const express = require('express');
-const mongoose = require('mongoose');
+const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
-const {Mentor} = require('../models/mentor');
-const {Student} = require('../models/student');
+const { Mentor } = require("../models/mentor");
+const { Student } = require("../models/student");
+const auth = require("../middlewares/auth");
 
-// TODO: check if the student is locked before allowing modification
-
-// GET route to fetch all the mentors
-router.get('/', async (req, res) => {           // working
-    try {
-        const mentors = await Mentor.find({});
-        res.send(mentors);
-    } catch (error) {
-        res.status(500).send(error);
-    }
+// GET: Fetch all the mentors
+router.get("/", async (req, res) => {
+  try {
+    const mentors = await Mentor.find({});
+    res.send(mentors);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
-// POST route to create a new mentor
-router.post('/', async (req, res) => {          // working
-    try {
-        const mentor = new Mentor({
-            Name: req.body.Name
+// POST: Assign students to a mentor
+router.post("/assign", auth, async (req, res) => {
+  // Extract user id from request
+  const user_id = req.user_id;
+
+  // Check if ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(user_id)) {
+    return res.status(400).json({ message: "Invalid ID" });
+  }
+
+  try {
+    const mentor = await Mentor.findById(user_id);
+    if (mentor.Locked) {
+      return res.status(400).send({ error: "Mentor profile is locked" });
+    }
+
+    for (let i = 0; i < mentor.students.length; i++) {
+      const stud = await Student.findById(mentor.students[i]);
+      stud.MentorID = null;
+      await stud.save();
+    }
+
+    const temp = req.body.students;
+    let students = [];
+    for (let i = 0; i < temp.length; i++) {
+      const student = await Student.findById(temp[i]);
+      if (!student) {
+        return res.status(404).send({ error: `Student ${temp[i]} not found` });
+      }
+      students.push(student);
+    }
+
+    if (!mentor) {
+      return res.status(404).send({ error: "Mentor not found" });
+    }
+
+    if (students.length < 3) {
+      return res
+        .status(400)
+        .send({ error: "Mentor can have a minimum of 3 students" });
+    }
+
+    if (students.length > 4) {
+      return res
+        .status(400)
+        .send({ error: "Mentor can have a maximum of 4 students" });
+    }
+
+    // Check if student is already assigned to a mentor
+    for (let i = 0; i < students.length; i++) {
+      const stud = students[i];
+      if (stud.MentorID) {
+        return res
+          .status(400)
+          .send({
+            error: `Student ${stud.Name} is already assigned to a mentor`,
+          });
+      }
+    }
+
+    for (let i = 0; i < students.length; i++) {
+      const stud = students[i];
+      stud.MentorID = mentor._id;
+      await stud.save();
+    }
+
+    const allStuds = await Student.find();
+    for (let i = 0; i < allStuds.length; i++) {
+      if (allStuds[i].MentorID == null) {
+        allStuds[i].Grades = {
+          Ideation: null,
+          Execution: null,
+          Viva: null,
+        };
+        allStuds[i].save();
+      }
+    }
+
+    mentor.students = students;
+    await mentor.save();
+    res
+      .status(201)
+      .send({ message: "Students assigned to mentor successfully" });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+});
+
+// PUT: Lock the profiles of all the students under a mentor
+router.put("/lock", auth, async (req, res) => {
+  // Extract user id from request
+  const user_id = req.user_id;
+
+  try {
+    // Check if mentor ID is valid
+    if (!mongoose.Types.ObjectId.isValid(user_id)) {
+      return res.status(400).json({ message: "Invalid ID" });
+    }
+
+    // Find the mentor by ID and populate the students array
+    const mentor = await Mentor.findById(user_id).populate("students");
+
+    // Check if the number of students lies between 3 and 4
+    if (mentor.students.length < 3 || mentor.students.length > 4) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "Cannot lock profiles as number of students is not between 3 and 4",
         });
-        await mentor.save();
-        res.status(201).send(mentor);
-    } catch (error) {
-        res.status(400).send(error);
-    }
-});
-
-// PUT route to assign a student to a mentor
-router.put('/:mentorId/students/:studentId', async (req, res) => {      // working
-
-    // Check if ID is a valid ObjectId      // working
-    if (!mongoose.Types.ObjectId.isValid(req.params.mentorId)) {
-        return res.status(400).json({ message: 'Invalid ID' });
     }
 
-    // Check if ID is a valid ObjectId      // working
-    if (!mongoose.Types.ObjectId.isValid(req.params.studentId)) {
-        return res.status(400).json({ message: 'Invalid ID' });
-    }
+    // Check if any of the students have any grades set to null
+    const studentsWithNullGrades = mentor.students.filter((student) =>
+      // student && student.Grades && typeof student.Grades === 'object' &&
+      Object.values(student.Grades).some((grade) => grade === null)
+    );
 
-    try {
-        const mentor = await Mentor.findById(req.params.mentorId).populate('students');
-        const student = await Student.findById(req.params.studentId);
-
-        console.log(mentor);
-        console.log(student);
-
-        if (!mentor || !student) {          // working
-            return res.status(404).send({ error: 'Mentor or student not found' });
-        }
-
-        if (mentor.students.length >= 4) {
-            return res.status(400).send({ error: 'Mentor already has 4 students' });
-        }
-
-
-        // Check if student is already assigned to a mentor
-        if (student.MentorID) {             // working
-            return res.status(400).send({ error: 'Student is already assigned to a mentor' });
-        }
-
-        if (mentor.students.length < 4) {       // working
-            mentor.students.push(student);
-            student.MentorID = mentor._id;
-            await mentor.save();
-            await student.save();
-            return res.status(201).send({ message: 'Student assigned to mentor successfully' });
-        }
-
-        return res.status(400).send({ error: 'Mentor already has 4 students' });        // working
-    } catch (error) {
-        res.status(500).send(error);
-    }
-});
-
-// DELETE route to delete a mentor based on their ID
-router.delete('/:id', async (req, res) => {        // working
-    // Check if ID is a valid ObjectId
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-        return res.status(400).json({ message: 'Invalid ID' });
-    }
-
-    try {
-        const deletedMentor = await Mentor.findByIdAndDelete(req.params.id);
-        if (!deletedMentor) {
-            return res.status(404).json({ message: 'Mentor not found' });
-        }
-        res.json({ message: 'Mentor deleted successfully' });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
-
-
-// PUT route to lock the profiles of all the students under a mentor
-router.put('/:mentorId/lockstudents', async (req, res) => {     // working
-    try {
-        // Check if mentor ID is valid
-        if (!mongoose.Types.ObjectId.isValid(req.params.mentorId)) {
-            return res.status(400).json({ message: 'Invalid ID' });         // working
-        }
-
-        // Find the mentor by ID and populate the students array
-        const mentor = await Mentor.findById(req.params.mentorId).populate('students');
-
-        // Check if the number of students lies between 3 and 4
-        if (mentor.students.length < 3 || mentor.students.length > 4) {     // working
-            return res.status(400).json({ message: 'Cannot lock profiles as number of students is not between 3 and 4' });
-        }
-
-        // Check if any of the students have any grades set to null
-
-        const studentsWithNullGrades = mentor.students.filter(student => 
-            // student && student.Grades && typeof student.Grades === 'object' &&
-            Object.values(student.Grades).some(grade => grade === null));
-
-        if (studentsWithNullGrades.length > 0) {    // working
-            // studentsWithNullGrades.forEach(stud => console.log(stud));
-            return res.status(400).json({ message: 'Cannot lock profiles as some students have null grades' });
-        }
-
-        // Set the locked property of all the students to true
-        const studentPromises = mentor.students.map(student => {
-            return Student.findByIdAndUpdate(student._id, { Locked: true });
+    if (studentsWithNullGrades.length > 0) {
+      // working
+      // studentsWithNullGrades.forEach(stud => console.log(stud));
+      return res
+        .status(400)
+        .json({
+          message: "Cannot lock profiles as some students have null grades",
         });
-
-        Promise.all(studentPromises).then(updatedStudents => {      // working
-            res.json({ message: 'Profiles of all students under the mentor have been locked' });
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error);
     }
+
+    // Set the locked property of mentor to true
+    mentor.Locked = true;
+    await mentor.save();
+
+    res.json({
+      message: "Profiles of all students under the mentor have been locked",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send(error);
+  }
+});
+
+// POST: Create a new mentor
+router.post("/", async (req, res) => {
+  try {
+    const mentor = new Mentor({
+      Name: req.body.Name,
+    });
+    await mentor.save();
+    res.status(201).send(mentor);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
+// DELETE: Delete a mentor based on their ID
+router.delete("/:id", async (req, res) => {
+  // Check if ID is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: "Invalid ID" });
+  }
+
+  try {
+    const deletedMentor = await Mentor.findByIdAndDelete(req.params.id);
+    if (!deletedMentor) {
+      return res.status(404).json({ message: "Mentor not found" });
+    }
+    res.json({ message: "Mentor deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 module.exports = router;

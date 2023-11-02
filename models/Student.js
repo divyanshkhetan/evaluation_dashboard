@@ -24,10 +24,6 @@ const studentSchema = new mongoose.Schema({
             type: Number,
             default: null
         },
-    },
-    Locked: {
-        type: Boolean,
-        default: false
     }
 });
 
@@ -41,8 +37,7 @@ function validateStudent(student) {
             Ideation: Joi.number().allow(null),
             Execution: Joi.number().allow(null),
             Viva: Joi.number().allow(null)
-        }),
-        Locked: Joi.boolean()
+        })
     });
     return schema.validate(student);
 }
