@@ -1,9 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
-const { Mentor } = require("../models/mentor");
-const { Student } = require("../models/student");
-const auth = require("../middlewares/auth");
+const { Mentor } = require("../models/mentor.js");
+const { Student } = require("../models/student.js");
+const auth = require("../middlewares/auth.js");
 const nodemailer = require("nodemailer");
 
 //Required package
