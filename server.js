@@ -3,7 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const path = require("path");
-require('dotenv').config()
+require("dotenv").config();
 
 // Database
 const connectDB = require("./config/db");
@@ -22,17 +22,15 @@ app.use(cors());
 app.use(cookieParser());
 
 // Routes
-app.use('/auth', require('./routes/auth'));
-app.use('/mentors', require('./routes/mentors'));
-app.use('/students', require('./routes/students'));
+app.use("/auth", require("./routes/auth"));
+app.use("/mentors", require("./routes/mentors"));
+app.use("/students", require("./routes/students"));
 
-// Serve static assets in production
-if (process.env.NODE_ENV === "production") {
-    // Set static folder
-    app.use(express.static('client/build'));
+app.use(express.static("client/build"));
 
-    app.get("*", (req, res) => res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html')));
-}
+app.get("*", (req, res) =>
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"))
+);
 
 // Listen to port
 app.listen(port, () => console.log(`Port ${port} started`));
