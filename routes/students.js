@@ -2,8 +2,8 @@ const express = require("express");
 const mongoose = require("mongoose");
 const router = express.Router();
 const ObjectId = require("mongodb").ObjectId;
-const { Mentor } = require("../models/mentor.js");
-const { Student } = require("../models/student.js");
+const Mentor = require("../models/Mentor.js");
+const Student = require("../models/Student.js");
 const auth = require("../middlewares/auth.js");
 
 // GET: Fetch all students

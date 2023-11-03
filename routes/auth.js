@@ -1,7 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const auth = require("../middlewares/auth.js");
-const { Mentor } = require("../models/mentor.js");
+const Mentor = require("../models/Mentor.js");
 
 const router = express.Router();
 

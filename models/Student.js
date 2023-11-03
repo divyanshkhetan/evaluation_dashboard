@@ -34,21 +34,4 @@ const studentSchema = new mongoose.Schema({
 
 const Student = mongoose.model('Student', studentSchema);
 
-function validateStudent(student) {
-    const schema = Joi.object({
-        Name: Joi.string().required(),
-        MentorID: Joi.object(),
-        Grades: Joi.object({
-            Ideation: Joi.number().allow(null),
-            Execution: Joi.number().allow(null),
-            Viva: Joi.number().allow(null)
-        }),
-        Email: Joi.string().required()
-    });
-    return schema.validate(student);
-}
-
-module.exports = {
-    Student,
-    validateStudent
-};
+module.exports = Student
